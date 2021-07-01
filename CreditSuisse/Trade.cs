@@ -36,4 +36,58 @@ namespace CreditSuisse
             }
         }
     }
+
+    public class CategoriaExpired : ICategoria
+    {
+        public string Name => "Expired";
+        public DateTime ReferenceDate { get; set; }
+        public bool IsValid(ITrade trade)
+        {
+
+            TimeSpan tm = new TimeSpan(trade.NextPaymentDate.Ticks - ReferenceDate.Ticks);
+
+            if (tm.Days < 30)
+                return true;
+            else
+                return false;
+        }
+    }
+
+    public class CategoriaHIGHRISK : ICategoria
+    {
+        public string Name => "HIGHRISK";
+        public bool IsValid(ITrade trade)
+        {
+            if (trade.Amount > 1000000 && trade.ClientSector.Equals("Private"))
+                return true;
+            else
+                return false;
+        }
+    }
+
+    public class CategoriaMEDIUMRISK : ICategoria
+    {
+        public string Name => "MEDIUMRISK";
+
+        public bool IsValid(ITrade trade)
+        {
+            if (trade.Amount > 1000000 && !trade.ClientSector.Equals("Private"))
+                return true;
+            else
+                return false;
+        }
+    }
+
+    public class CategoriaPEP : ICategoria
+    {
+        public string Name => "PEP";
+
+        public bool IsValid(ITrade trade)
+        {
+            if (trade.IsPoliticallyExposed)
+                return true;
+            else
+                return false;
+        }
+    }
 }

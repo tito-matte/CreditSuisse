@@ -9,4 +9,10 @@ namespace CreditSuisse
         DateTime NextPaymentDate { get; }
         bool IsPoliticallyExposed { get; }
     }
+
+    public interface ICategoria
+    {
+        string Name { get; }
+        bool IsValid(ITrade trade);
+    }
 }

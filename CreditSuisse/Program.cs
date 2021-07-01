@@ -10,11 +10,17 @@ namespace CreditSuisse
         {
             DateTime dtareferenceDate;
             List<Trade> trades = new List<Trade>();
+            List<ICategoria> categorias = new List<ICategoria>();
 
             Console.Write("Reference Date 'mm/dd/yyyy': ");
             string inLine = Console.In.ReadLine();
 
             dtareferenceDate = inLine.StringToDate();
+
+            categorias.Add(new CategoriaPEP());
+            categorias.Add(new CategoriaHIGHRISK());
+            categorias.Add(new CategoriaExpired() { ReferenceDate = dtareferenceDate });
+            categorias.Add(new CategoriaMEDIUMRISK());
 
             Console.Write("Number of trades: ");
             inLine = Console.In.ReadLine();
@@ -26,26 +32,22 @@ namespace CreditSuisse
                 Console.Write($"Trade {nEntry + 1}: ");
                 inLine = Console.In.ReadLine();
 
-                trades.Add(new Trade(inLine));
-            }
+                Trade trade = new Trade(inLine);
 
-            nTrades = 1;
-            trades.ForEach(t =>
-            {
                 string msg = "Ok";
 
-                TimeSpan tm = new TimeSpan(t.NextPaymentDate.Ticks - dtareferenceDate.Ticks);
-                
-                if (tm.Days < 30)
-                    msg = "EXPIRED";
-                else
+                foreach (var categoria in categorias)
                 {
-                    if (t.Amount > 1000000)
-                        msg = t.ClientSector.ToUpper().Equals("Private".ToUpper()) ? "HIGHRISK" : "MEDIUMRISK";
+                    if (categoria.IsValid(trade))
+                    {
+                        msg = categoria.Name;
+                        break;
+                    }
                 }
 
+                trades.Add(trade);
                 Console.Out.WriteLine($"Trade {nTrades} -> {msg}");
-            });
+            }
         }
     }
 }
